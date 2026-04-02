@@ -1,0 +1,10 @@
+{
+  "tiles": [
+    {
+      "text": "Web Client Add-on Extension",
+      "icon": "sap-icon://customize",
+      "url": "index.html",
+      "size": "1x1"
+    }
+  ]
+}
