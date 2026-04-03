@@ -20,3 +20,7 @@ export type BusinessPartner = {
   CardCode: string;
   CardName: string;
 };
+export type ItemMaster = {
+  ItemCode: string;
+  ItemName: string;
+};

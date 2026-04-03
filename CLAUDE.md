@@ -38,6 +38,8 @@ This is a **SAP Web Client Extension** — a React SPA that runs embedded inside
 
 `App.tsx` shows `<Loader>` during startup, then renders the main screen once user data is available.
 
+**Dev vs production difference:** `useAppStartup` branches on `import.meta.env.DEV`. In dev, it explicitly logs into Service Layer using `.env` credentials and skips `getCurrentUser` (user is `undefined`). In production (embedded in SAP Web Client), it skips the login step — Service Layer requests use `credentials: "include"` so the browser's existing session cookie handles auth — and fetches `getCurrentUser` from the session endpoint (`tcli/service/data/user.svc`). Also, `ServiceLayerClient.fetch` uses full `baseUrl` only in dev; in production it uses relative paths (the extension runs within the SAP Web Client origin).
+
 ### State management
 
 - **TanStack Query** for all server state (configured with no retries on 401, no auto-refetch on window focus). `QueryCache` shows error modals on query failures.

@@ -1,0 +1,3 @@
+﻿Code,Name,TableName,LogTableName,ObjectType,ManageSeries,CanDelete,CanClose,CanCancel,CanFind,CanYearTransfer,CanCreateDefaultForm,CanLog,OverwriteDllfile,UseUniqueFormType,CanArchive
+Code,Name,TableName,LogTableName,ObjectType,ManageSeries,CanDelete,CanClose,CanCancel,CanFind,CanYearTransfer,CanCreateDefaultForm,CanLog,OverwriteDllfile,UseUniqueFormType,CanArchive
+FTAPICONFIG,FTAPICONFIG,@FTAPICONFIG,AFTAPICONFIG,boud_MasterData,tNO,tNO,tNO,tNO,tNO,tNO,tYES,tNO,tNO,tYES,tNO

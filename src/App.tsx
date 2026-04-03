@@ -1,8 +1,9 @@
 import { useEffect } from "react";
+import { Link, Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { Loader, SelectTheme } from "./components";
 import { UserProvider } from "./contexts";
 import { useAppStartup } from "./hooks";
-import { DemoScreen } from "./screens";
+import { DemoScreen, DemoScreen2 } from "./screens";
 import { setTheme } from "@ui5/webcomponents-base";
 
 function App() {
@@ -22,8 +23,17 @@ function App() {
 
   return (
     <UserProvider value={{ user: user }}>
-      {import.meta.env.DEV && <SelectTheme />}
-      <DemoScreen />
+      <Router>
+        {import.meta.env.DEV && <SelectTheme />}
+        <nav style={{ display: "flex", gap: "1rem", padding: "0.5rem 1rem" }}>
+          <Link to="/">Demo Screen</Link>
+          <Link to="/demo2">Demo Screen 2</Link>
+        </nav>
+        <Routes>
+          <Route path="/" element={<DemoScreen />} />
+          <Route path="/demo2" element={<DemoScreen2 />} />
+        </Routes>
+      </Router>
     </UserProvider>
   );
 }

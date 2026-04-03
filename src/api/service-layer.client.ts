@@ -1,5 +1,6 @@
 import {
   type BusinessPartner,
+  type ItemMaster,
   type ODataList,
   type SapApiConfig,
   type ServiceLayerUser,
@@ -68,6 +69,15 @@ export class ServiceLayerClient {
   async getBusinessPartners(): Promise<BusinessPartner[]> {
     const response = await this.fetch<ODataList<BusinessPartner>>(
       "b1s/v2/BusinessPartners?$select=CardCode,CardName&$filter=CardType eq 'C'&$top=10",
+      {
+        method: "GET",
+      },
+    );
+    return response.value;
+  }
+  async getItemMasters(): Promise<ItemMaster[]> {
+    const response = await this.fetch<ODataList<ItemMaster>>(
+      "b1s/v2/Items?$select=ItemCode,ItemName&$top=10",
       {
         method: "GET",
       },
