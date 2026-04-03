@@ -3,3 +3,4 @@ export * from "./useBusinessPartner";
 export * from "./useCreateSalesOrder";
 export * from "./useItemMaster";
 export * from "./useSalesOrder";
+export * from "./useSalesOrderDetail";

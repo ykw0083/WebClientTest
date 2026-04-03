@@ -1,5 +1,6 @@
 import {
   type BusinessPartner,
+  type DocumentLine,
   type ItemMaster,
   type ODataList,
   type SalesOrder,
@@ -81,6 +82,13 @@ export class ServiceLayerClient {
     const response = await this.fetch<ODataList<BusinessPartner>>(url, { method: "GET" });
     return { value: response.value, count: response["@odata.count"] ?? 0 };
   }
+  async getSalesOrderDetail(docEntry: number): Promise<SalesOrder> {
+    return this.fetch<SalesOrder>(
+      `b1s/v2/Orders(${docEntry})?$select=DocEntry,DocNum,CardCode,CardName,DocDate,DocDueDate,DocTotal,DocumentLines`,
+      { method: "GET" },
+    );
+  }
+
   async postSalesOrder(payload: SalesOrderPayload): Promise<SalesOrder> {
     return this.fetch<SalesOrder>("b1s/v2/Orders", {
       method: "POST",
@@ -93,10 +101,20 @@ export class ServiceLayerClient {
     search?: string;
   }): Promise<{ value: SalesOrder[]; count: number }> {
     const skip = params.page * 10;
-    let url = `b1s/v2/Orders?$select=DocEntry,DocNum,CardCode,CardName,DocDate,DocTotal&$top=10&$skip=${skip}&$count=true`;
+    let url = `b1s/v2/Orders?$select=DocEntry,DocNum,CardCode,CardName,DocDate,DocDueDate,DocTotal&$top=10&$skip=${skip}&$count=true`;
     if (params.search) {
       const escaped = params.search.replace(/'/g, "''");
-      url += `&$filter=contains(CardCode,'${escaped}') or contains(CardName,'${escaped}')`;
+      const conditions: string[] = [
+        `contains(CardCode,'${escaped}')`,
+        `contains(CardName,'${escaped}')`,
+      ];
+      if (/^\d+$/.test(params.search)) {
+        conditions.push(`DocNum eq ${params.search}`);
+      }
+      if (/^\d{4}-\d{2}-\d{2}$/.test(params.search)) {
+        conditions.push(`DocDate eq ${params.search}T00:00:00Z`);
+      }
+      url += `&$filter=${conditions.join(" or ")}`;
     }
     const response = await this.fetch<ODataList<SalesOrder>>(url, { method: "GET" });
     return { value: response.value, count: response["@odata.count"] ?? 0 };

@@ -26,13 +26,23 @@ export type ItemMaster = {
   ItemName: string;
 };
 
+export type DocumentLine = {
+  ItemCode: string;
+  ItemDescription: string;
+  Quantity: number;
+  UnitPrice: number;
+  LineTotal: number;
+};
+
 export type SalesOrder = {
   DocEntry: number;
   DocNum: number;
   CardCode: string;
   CardName: string;
   DocDate: string;
+  DocDueDate: string;
   DocTotal: number;
+  DocumentLines?: DocumentLine[];
 };
 
 export type SalesOrderPayload = {

@@ -158,7 +158,7 @@ export const SalesOrderScreen: React.FC = () => {
       <Title>New Sales Order</Title>
 
       {/* Header */}
-      <Form layout="S1 M2 L2 XL2" labelSpan="S12 M4 L4 XL4" style={{ maxWidth: "900px" }}>
+      <Form layout="S1 M2 L2 XL2" labelSpan="S12 M4 L4 XL4" style={{ maxWidth: "auto" }}>
         <FormItem labelContent={<Label slot="label">Doc Date</Label>}>
           <Input
             type="Date"
@@ -248,7 +248,7 @@ export const SalesOrderScreen: React.FC = () => {
 
       {/* Footer */}
       <Bar
-        style={{ maxWidth: "900px" }}
+        style={{ maxWidth: "auto" }}
         startContent={<Label>Doc Total: {docTotal.toFixed(2)}</Label>}
         endContent={
           <Button design="Emphasized" icon="save" loading={isSubmitting} onClick={handleSubmit}>

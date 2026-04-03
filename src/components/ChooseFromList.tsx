@@ -17,6 +17,7 @@ import {
 export type CflColumn<T> = {
   key: keyof T & string;
   label: string;
+  render?: (value: unknown) => string;
 };
 
 type SingleSelectProps<T> = {
@@ -161,7 +162,7 @@ export function ChooseFromList<T>({
               )}
               {columns.map((col) => (
                 <TableCell key={col.key}>
-                  <span>{String((row as Record<string, unknown>)[col.key] ?? "")}</span>
+                  <span>{col.render ? col.render((row as Record<string, unknown>)[col.key]) : String((row as Record<string, unknown>)[col.key] ?? "")}</span>
                 </TableCell>
               ))}
               {!multiSelect && (
