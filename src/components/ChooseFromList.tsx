@@ -1,7 +1,9 @@
+import { useState } from "react";
 import {
   Bar,
   BusyIndicator,
   Button,
+  CheckBox,
   Dialog,
   FlexBox,
   Input,
@@ -17,6 +19,16 @@ export type CflColumn<T> = {
   label: string;
 };
 
+type SingleSelectProps<T> = {
+  multiSelect?: false;
+  onSelect: (row: T) => void;
+};
+
+type MultiSelectProps<T> = {
+  multiSelect: true;
+  onSelect: (rows: T[]) => void;
+};
+
 type Props<T> = {
   open: boolean;
   title: string;
@@ -28,9 +40,8 @@ type Props<T> = {
   search: string;
   onPageChange: (page: number) => void;
   onSearchChange: (search: string) => void;
-  onSelect: (row: T) => void;
   onClose: () => void;
-};
+} & (SingleSelectProps<T> | MultiSelectProps<T>);
 
 const PAGE_SIZE = 10;
 
@@ -47,11 +58,36 @@ export function ChooseFromList<T>({
   onSearchChange,
   onSelect,
   onClose,
+  multiSelect,
 }: Props<T>) {
+  const [checkedRows, setCheckedRows] = useState<T[]>([]);
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
-  function handleSelect(row: T) {
-    onSelect(row);
+  function isChecked(row: T) {
+    return checkedRows.some((r) => JSON.stringify(r) === JSON.stringify(row));
+  }
+
+  function toggleRow(row: T) {
+    setCheckedRows((prev) =>
+      isChecked(row)
+        ? prev.filter((r) => JSON.stringify(r) !== JSON.stringify(row))
+        : [...prev, row]
+    );
+  }
+
+  function handleSingleSelect(row: T) {
+    (onSelect as (row: T) => void)(row);
+    onClose();
+  }
+
+  function handleConfirm() {
+    (onSelect as (rows: T[]) => void)(checkedRows);
+    setCheckedRows([]);
+    onClose();
+  }
+
+  function handleClose() {
+    setCheckedRows([]);
     onClose();
   }
 
@@ -59,7 +95,7 @@ export function ChooseFromList<T>({
     <Dialog
       open={open}
       headerText={title}
-      onClose={onClose}
+      onClose={handleClose}
       footer={
         <Bar
           startContent={
@@ -70,15 +106,21 @@ export function ChooseFromList<T>({
               <span style={{ fontSize: "0.875rem" }}>
                 {page + 1} / {totalPages}
               </span>
-              <Button
-                disabled={page >= totalPages - 1}
-                onClick={() => onPageChange(page + 1)}
-              >
+              <Button disabled={page >= totalPages - 1} onClick={() => onPageChange(page + 1)}>
                 Next &gt;
               </Button>
             </FlexBox>
           }
-          endContent={<Button onClick={onClose}>Cancel</Button>}
+          endContent={
+            <FlexBox style={{ gap: "0.5rem" }}>
+              {multiSelect && (
+                <Button design="Emphasized" disabled={checkedRows.length === 0} onClick={handleConfirm}>
+                  Confirm ({checkedRows.length})
+                </Button>
+              )}
+              <Button onClick={handleClose}>Cancel</Button>
+            </FlexBox>
+          }
         />
       }
       style={{ minWidth: "480px" }}
@@ -100,25 +142,33 @@ export function ChooseFromList<T>({
         <Table
           headerRow={
             <TableHeaderRow>
+              {multiSelect && <TableHeaderCell />}
               {columns.map((col) => (
                 <TableHeaderCell key={col.key}>
                   <span>{col.label}</span>
                 </TableHeaderCell>
               ))}
-              <TableHeaderCell />
+              {!multiSelect && <TableHeaderCell />}
             </TableHeaderRow>
           }
         >
           {data.map((row, i) => (
             <TableRow key={i} rowKey={String(i)}>
+              {multiSelect && (
+                <TableCell>
+                  <CheckBox checked={isChecked(row)} onChange={() => toggleRow(row)} />
+                </TableCell>
+              )}
               {columns.map((col) => (
                 <TableCell key={col.key}>
                   <span>{String((row as Record<string, unknown>)[col.key] ?? "")}</span>
                 </TableCell>
               ))}
-              <TableCell>
-                <Button onClick={() => handleSelect(row)}>Select</Button>
-              </TableCell>
+              {!multiSelect && (
+                <TableCell>
+                  <Button onClick={() => handleSingleSelect(row)}>Select</Button>
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </Table>

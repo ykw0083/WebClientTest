@@ -2,6 +2,8 @@ import {
   type BusinessPartner,
   type ItemMaster,
   type ODataList,
+  type SalesOrder,
+  type SalesOrderPayload,
   type SapApiConfig,
   type ServiceLayerUser,
 } from "./api.types";
@@ -40,7 +42,7 @@ export class ServiceLayerClient {
 
     if (!res.ok) {
       const body = await res.json();
-      const message = body?.error?.message?.value ?? body?.message ?? body?.error ?? "";
+      const message = body?.error?.message?.value ?? body?.message ?? JSON.stringify(body) ?? "";
       throw new Error(message);
     }
 
@@ -79,6 +81,27 @@ export class ServiceLayerClient {
     const response = await this.fetch<ODataList<BusinessPartner>>(url, { method: "GET" });
     return { value: response.value, count: response["@odata.count"] ?? 0 };
   }
+  async postSalesOrder(payload: SalesOrderPayload): Promise<SalesOrder> {
+    return this.fetch<SalesOrder>("b1s/v2/Orders", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async getSalesOrders(params: {
+    page: number;
+    search?: string;
+  }): Promise<{ value: SalesOrder[]; count: number }> {
+    const skip = params.page * 10;
+    let url = `b1s/v2/Orders?$select=DocEntry,DocNum,CardCode,CardName,DocDate,DocTotal&$top=10&$skip=${skip}&$count=true`;
+    if (params.search) {
+      const escaped = params.search.replace(/'/g, "''");
+      url += `&$filter=contains(CardCode,'${escaped}') or contains(CardName,'${escaped}')`;
+    }
+    const response = await this.fetch<ODataList<SalesOrder>>(url, { method: "GET" });
+    return { value: response.value, count: response["@odata.count"] ?? 0 };
+  }
+
   async getItemMasters(params: {
     page: number;
     search?: string;
