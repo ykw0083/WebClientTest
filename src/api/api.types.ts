@@ -1,5 +1,6 @@
 export interface ODataList<T> {
   value: T[];
+  "@odata.count"?: number;
 }
 
 export interface ServiceLayerUser {

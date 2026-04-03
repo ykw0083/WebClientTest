@@ -66,23 +66,31 @@ export class ServiceLayerClient {
     };
   }
 
-  async getBusinessPartners(): Promise<BusinessPartner[]> {
-    const response = await this.fetch<ODataList<BusinessPartner>>(
-      "b1s/v2/BusinessPartners?$select=CardCode,CardName&$filter=CardType eq 'C'&$top=10",
-      {
-        method: "GET",
-      },
-    );
-    return response.value;
+  async getBusinessPartners(params: {
+    page: number;
+    search?: string;
+  }): Promise<{ value: BusinessPartner[]; count: number }> {
+    const skip = params.page * 10;
+    let url = `b1s/v2/BusinessPartners?$select=CardCode,CardName&$top=10&$skip=${skip}&$count=true&$filter=CardType eq 'C'`;
+    if (params.search) {
+      const escaped = params.search.replace(/'/g, "''");
+      url += ` and (contains(CardCode,'${escaped}') or contains(CardName,'${escaped}'))`;
+    }
+    const response = await this.fetch<ODataList<BusinessPartner>>(url, { method: "GET" });
+    return { value: response.value, count: response["@odata.count"] ?? 0 };
   }
-  async getItemMasters(): Promise<ItemMaster[]> {
-    const response = await this.fetch<ODataList<ItemMaster>>(
-      "b1s/v2/Items?$select=ItemCode,ItemName&$top=10",
-      {
-        method: "GET",
-      },
-    );
-    return response.value;
+  async getItemMasters(params: {
+    page: number;
+    search?: string;
+  }): Promise<{ value: ItemMaster[]; count: number }> {
+    const skip = params.page * 10;
+    let url = `b1s/v2/Items?$select=ItemCode,ItemName&$top=10&$skip=${skip}&$count=true`;
+    if (params.search) {
+      const escaped = params.search.replace(/'/g, "''");
+      url += `&$filter=contains(ItemCode,'${escaped}') or contains(ItemName,'${escaped}')`;
+    }
+    const response = await this.fetch<ODataList<ItemMaster>>(url, { method: "GET" });
+    return { value: response.value, count: response["@odata.count"] ?? 0 };
   }
 }
 
