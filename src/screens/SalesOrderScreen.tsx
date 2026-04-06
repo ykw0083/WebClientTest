@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   Bar,
+  BusyIndicator,
   Button,
   FlexBox,
   Form,
@@ -18,6 +19,7 @@ import {
 } from "@ui5/webcomponents-react";
 import { ChooseFromList } from "../components";
 import { useBusinessPartner, useCreateSalesOrder, useItemMaster } from "../hooks";
+import { serviceLayerApi } from "../api";
 import type { BusinessPartner, ItemMaster } from "../api";
 
 type OrderLine = {
@@ -48,6 +50,9 @@ export const SalesOrderScreen: React.FC = () => {
 
   // ========== STATE — Validation
   const [errors, setErrors] = useState<string[]>([]);
+
+  // ========== STATE — Price fetching
+  const [fetchingPrices, setFetchingPrices] = useState(false);
 
   // ========== STATE — BP CFL
   const [bpCflOpen, setBpCflOpen] = useState(false);
@@ -84,22 +89,29 @@ export const SalesOrderScreen: React.FC = () => {
     setItemCflOpen(true);
   }
 
-  function handleSelectItems(items: ItemMaster[]) {
-    const newLines = items.map((item) => ({
-      ...emptyLine(),
-      itemCode: item.ItemCode,
-      itemName: item.ItemName,
-    }));
-    setLines((prev) => {
-      const updated = [...prev];
-      if (editingLineIndex !== null && !updated[editingLineIndex].itemCode) {
-        updated.splice(editingLineIndex, 1, ...newLines);
-      } else {
-        updated.push(...newLines);
-      }
-      return updated;
-    });
-    setEditingLineIndex(null);
+  async function handleSelectItems(items: ItemMaster[]) {
+    setFetchingPrices(true);
+    try {
+      const newLines = await Promise.all(
+        items.map(async (item) => {
+          const prices = await serviceLayerApi.getItemPrice(item.ItemCode);
+          const unitPrice = prices.find((p) => p.PriceList === 1)?.Price ?? 0;
+          return { ...emptyLine(), itemCode: item.ItemCode, itemName: item.ItemName, unitPrice };
+        })
+      );
+      setLines((prev) => {
+        const updated = [...prev];
+        if (editingLineIndex !== null && !updated[editingLineIndex].itemCode) {
+          updated.splice(editingLineIndex, 1, ...newLines);
+        } else {
+          updated.push(...newLines);
+        }
+        return updated;
+      });
+      setEditingLineIndex(null);
+    } finally {
+      setFetchingPrices(false);
+    }
   }
 
   function updateLine(index: number, field: keyof OrderLine, value: string) {
@@ -154,6 +166,7 @@ export const SalesOrderScreen: React.FC = () => {
 
   // ========== VIEWS
   return (
+    <BusyIndicator active={fetchingPrices} text="Retrieving item prices..." style={{ width: "100%" }}>
     <FlexBox direction="Column" style={{ padding: "1rem", gap: "1rem" }}>
       <Title>New Sales Order</Title>
 
@@ -298,5 +311,6 @@ export const SalesOrderScreen: React.FC = () => {
         onClose={() => { setItemCflOpen(false); setEditingLineIndex(null); }}
       />
     </FlexBox>
+    </BusyIndicator>
   );
 };

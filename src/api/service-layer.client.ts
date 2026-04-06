@@ -119,6 +119,14 @@ export class ServiceLayerClient {
     return { value: response.value, count: response["@odata.count"] ?? 0 };
   }
 
+  async getItemPrice(itemCode: string): Promise<{ PriceList: number; Price: number }[]> {
+    const res = await this.fetch<{ ItemPrices: { PriceList: number; Price: number }[] }>(
+      `b1s/v2/Items('${encodeURIComponent(itemCode)}')?$select=ItemPrices`,
+      { method: "GET" },
+    );
+    return res.ItemPrices ?? [];
+  }
+
   async getItemMasters(params: {
     page: number;
     search?: string;
