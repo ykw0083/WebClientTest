@@ -130,7 +130,7 @@ export function ChooseFromList<T>({
         placeholder="Search..."
         value={search}
         onInput={(e) => {
-          onSearchChange((e.target as HTMLInputElement).value);
+          onSearchChange((e.target as unknown as HTMLInputElement).value);
           onPageChange(0);
         }}
         style={{ width: "100%", marginBottom: "0.5rem" }}

@@ -1,6 +1,5 @@
 import {
   type BusinessPartner,
-  type DocumentLine,
   type ItemMaster,
   type ODataList,
   type SalesOrder,

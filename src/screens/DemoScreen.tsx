@@ -34,7 +34,7 @@ export const DemoScreen: React.FC = () => {
             placeholder="Search..."
             value={search}
             onInput={(e) => {
-              setSearch((e.target as HTMLInputElement).value);
+              setSearch((e.target as unknown as HTMLInputElement).value);
               setPage(0);
             }}
           />

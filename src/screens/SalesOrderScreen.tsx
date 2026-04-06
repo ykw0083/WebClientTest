@@ -161,17 +161,19 @@ export const SalesOrderScreen: React.FC = () => {
       <Form layout="S1 M2 L2 XL2" labelSpan="S12 M4 L4 XL4" style={{ maxWidth: "auto" }}>
         <FormItem labelContent={<Label slot="label">Doc Date</Label>}>
           <Input
-            type="Date"
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            type={"Date" as any}
             value={docDate}
-            onInput={(e) => setDocDate((e.target as HTMLInputElement).value)}
+            onInput={(e) => setDocDate((e.target as unknown as HTMLInputElement).value)}
           />
         </FormItem>
 
         <FormItem labelContent={<Label slot="label">Due Date</Label>}>
           <Input
-            type="Date"
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            type={"Date" as any}
             value={docDueDate}
-            onInput={(e) => setDocDueDate((e.target as HTMLInputElement).value)}
+            onInput={(e) => setDocDueDate((e.target as unknown as HTMLInputElement).value)}
           />
         </FormItem>
 
@@ -217,14 +219,14 @@ export const SalesOrderScreen: React.FC = () => {
               <Input
                 type="Number"
                 value={String(line.quantity)}
-                onInput={(e) => updateLine(i, "quantity", (e.target as HTMLInputElement).value)}
+                onInput={(e) => updateLine(i, "quantity", (e.target as unknown as HTMLInputElement).value)}
               />
             </TableCell>
             <TableCell>
               <Input
                 type="Number"
                 value={String(line.unitPrice)}
-                onInput={(e) => updateLine(i, "unitPrice", (e.target as HTMLInputElement).value)}
+                onInput={(e) => updateLine(i, "unitPrice", (e.target as unknown as HTMLInputElement).value)}
               />
             </TableCell>
             <TableCell>

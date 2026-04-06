@@ -1,9 +1,9 @@
 _schema-version: "3.2"
-ID: webclient-ext
+ID: webclient-extso
 version: 1.0.0
 provider: Fast Track SBOi Sdn Bhd
 modules:
-  - name: webclient-ext
+  - name: webclient-extso
     type: single-page-app
     path: dist
 parameters:
